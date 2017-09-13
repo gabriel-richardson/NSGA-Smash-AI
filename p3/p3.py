@@ -76,6 +76,7 @@ def make_action(state, pad, mm, fox):
         mm.press_start_lots(state, pad)
     return True
 
+# TRAINING PROCESS USING DEAP
 def main():
     dolphin_dir = find_dolphin_dir()
     if dolphin_dir is None:
@@ -119,8 +120,6 @@ def main():
         mw_path = dolphin_dir + '/MemoryWatcher/MemoryWatcher'
         with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
             run(fox, state, sm, mw, pad, pop, toolbox)
-
-        print(state.players[1].character)
 
         fitnesses = list(toolbox.evaluate(fox, pop))
         for fit in fitnesses[0]:

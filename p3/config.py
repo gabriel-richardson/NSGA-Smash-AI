@@ -2,7 +2,7 @@
 
 # configuration for game
 game = dict(
-    stage_width         = 85.5656967163086, # stage width FINAL DESTINATION
+    stage_width         = 85.5656967163086, # HALF the stage width of FINAL DESTINATION
     g_time              = 4000, # game time
     t_time              = 4000, # game testing time
     fps                 = 60, # frame per second

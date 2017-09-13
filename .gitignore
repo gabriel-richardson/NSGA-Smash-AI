@@ -5,5 +5,8 @@ __pycache__/
 # ignore the dolphin.app
 Dolphin.app
 
+# ignore txt output files
+*.txt
+
 #ignore ISOs
 *.iso
