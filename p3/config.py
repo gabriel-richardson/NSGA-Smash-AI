@@ -13,7 +13,7 @@ game = dict(
 
 nnet = dict(
     n_inputs    = 3,
-    n_h_neurons = 3,
-    n_outputs   = 3,
-    n_weights   = (3+1) * (3) + (3+1) * (3), # (inputs + 1) * (h_neurons) + (h_neurons + 1) * (outputs)
+    n_h_neurons = 10,
+    n_outputs   = 13,
+    n_weights   = (3+1) * (10) + (10+1) * (13), # (inputs + 1) * (h_neurons) + (h_neurons + 1) * (outputs)
 )
