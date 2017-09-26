@@ -18,23 +18,18 @@ class Agent:
         self.fitness = 0
 
     def fit(self, state, pad):
-        x = (state.players[0].pos_x - state.players[2].pos_x) ** 2 # diff between player 1 and agent x pos
-        y = (state.players[0].pos_y - state.players[2].pos_y) ** 2 # diff between player 1 and agent y pos
-        d = np.sqrt(x + y) # sqrt of sum of diffs
-
-        # decrease fitness by d in case of getting hit
-        if state.players[2].hitlag > 0:
-            self.fitness -= d
-        # increase fitness by d if player is on the stage but not in rebirth/rebirthWait states
-        if (np.absolute(state.players[2].pos_x) <= c.game['stage_width']
-            and not(state.players[2].action_state == ActionState.Rebirth
-            or state.players[2].action_state == ActionState.RebirthWait)):
-            self.fitness += d
-        # decrease fitness by d if player is off stage and not dead
-        elif ((np.absolute(state.players[2].pos_x) > c.game['stage_width']
-            or np.absolute(state.players[2].pos_y < 0))
-            and state.players[2].action_state != ActionState.DeadDown): # DeadDown is ActionState for dying off the bottom
-            self.fitness -= d
+        # decrease fitness in case of getting hit
+        if (state.players[2].hitlag > 0 or state.players[2].hitstun > 0):
+            self.fitness -= 100
+        # decrease fitness in case of dying
+        if (state.players[2].action_state == ActionState.Rebirth):
+            self.fitness -= 1000
+        # increase fitness in case of hitting opponent
+        if (state.players[0].hitlag > 0 or state.players[0].hitstun > 0):
+            self.fitness += 100
+        # increase fitness in case of killing opponent
+        if (state.players[0].action_state == ActionState.Rebirth):
+            self.fitness += 1000
 
     # execute actions from action list
     def advance(self, state, pad):
@@ -56,8 +51,22 @@ class Agent:
         inputs.append(state.players[0].pos_y) # opponent y pos
         inputs.append(state.players[2].pos_x) # x pos
         inputs.append(state.players[2].pos_y) # y pos
-        inputs.append(state.players[0].facing) # facing
+        inputs.append(state.players[2].facing) # facing
         inputs.append(state.players[0].percent) # percent
+        # inputs.append(state.players[0].action_state) # action state
+        inputs.append(state.players[2].action_frame) # action frame
+        inputs.append(state.players[2].hitlag) # hitlag
+        inputs.append(state.players[2].hitstun) # hitstun
+        inputs.append(state.players[2].jumps_used) # jumps used
+        inputs.append(state.players[2].shield_size) # shield size
+        inputs.append(state.players[2].on_ground) # in air
+        inputs.append(state.players[2].self_air_vel_x) # speed x
+        inputs.append(state.players[2].self_air_vel_y) # speed y
+        inputs.append(state.players[2].attack_vel_x) # attack speed x
+        inputs.append(state.players[2].attack_vel_y) # attack speed y
+
+        inputs.append(state.players[0].facing) # facing
+        inputs.append(state.players[2].percent) # percent
         # inputs.append(state.players[0].action_state) # action state
         inputs.append(state.players[0].action_frame) # action frame
         inputs.append(state.players[0].hitlag) # hitlag
@@ -92,23 +101,18 @@ class Agent:
             self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
         if outputs[9] >= .5: # A Button
             self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-        else:
-            self.action_list.append((0, pad.release_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
         if outputs[10] >= .5: # B Button
             self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
-        else:
-            self.action_list.append((0, pad.release_button, [p3.pad.Button.B]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
         if outputs[11] >= .5: # Y Button
             self.action_list.append((0, pad.press_button, [p3.pad.Button.Y]))
-        else:
-            self.action_list.append((0, pad.release_button, [p3.pad.Button.Y]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.Y]))
         if outputs[12] >= .5: # Z Button
             self.action_list.append((0, pad.press_button, [p3.pad.Button.Z]))
-        else:
-            self.action_list.append((0, pad.release_button, [p3.pad.Button.Z]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.Z]))
         if outputs[13] >= .5: # L Trigger
             self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
-        else:
-            self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 0]))
+            self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
 
 
