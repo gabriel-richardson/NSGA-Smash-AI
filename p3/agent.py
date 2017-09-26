@@ -52,9 +52,24 @@ class Agent:
 
     def update(self, state, pad):
         inputs = [] # nnet inputs
-        inputs.append(np.absolute(state.players[0].pos_x - state.players[2].pos_x)) # x pos diff between agent and player 1
-        inputs.append(c.game['stage_width'] - np.absolute(state.players[0].pos_x)) # distance between player 1 and nearest edge of stage
-        inputs.append(c.game['stage_width'] - np.absolute(state.players[2].pos_x)) # distance between agent and nearest edge of stage
+        inputs.append(state.players[0].pos_x) # opponent x pos
+        inputs.append(state.players[0].pos_y) # opponent y pos
+        inputs.append(state.players[2].pos_x) # x pos
+        inputs.append(state.players[2].pos_y) # y pos
+        inputs.append(state.players[0].facing) # facing
+        inputs.append(state.players[0].percent) # percent
+        # inputs.append(state.players[0].action_state) # action state
+        inputs.append(state.players[0].action_frame) # action frame
+        inputs.append(state.players[0].hitlag) # hitlag
+        inputs.append(state.players[0].hitstun) # hitstun
+        inputs.append(state.players[0].jumps_used) # jumps used
+        inputs.append(state.players[0].shield_size) # shield size
+        inputs.append(state.players[0].on_ground) # in air
+        inputs.append(state.players[0].self_air_vel_x) # speed x
+        inputs.append(state.players[0].self_air_vel_y) # speed y
+        inputs.append(state.players[0].attack_vel_x) # attack speed x
+        inputs.append(state.players[0].attack_vel_y) # attack speed y
+
 
         outputs = self.brain.evaluate(inputs)
         if outputs[0] >= .5: # Left
@@ -73,27 +88,27 @@ class Agent:
             self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.0]))
         if outputs[7] >= .5: # Bottom-Right
             self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.0]))
-        if outputs[8] >= .5: # A Button
+        if outputs[8] >= .5: # Neutral
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
+        if outputs[9] >= .5: # A Button
             self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
         else:
             self.action_list.append((0, pad.release_button, [p3.pad.Button.A]))
-        if outputs[9] >= .5: # B Button
+        if outputs[10] >= .5: # B Button
             self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
         else:
             self.action_list.append((0, pad.release_button, [p3.pad.Button.B]))
-        if outputs[10] >= .5: # Y Button
+        if outputs[11] >= .5: # Y Button
             self.action_list.append((0, pad.press_button, [p3.pad.Button.Y]))
         else:
             self.action_list.append((0, pad.release_button, [p3.pad.Button.Y]))
-        if outputs[11] >= .5: # Z Button
+        if outputs[12] >= .5: # Z Button
             self.action_list.append((0, pad.press_button, [p3.pad.Button.Z]))
         else:
             self.action_list.append((0, pad.release_button, [p3.pad.Button.Z]))
-        if outputs[12] >= .5: # L Trigger
+        if outputs[13] >= .5: # L Trigger
             self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
         else:
             self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 0]))
-        # if outputs[0] < .5 and outputs[1] < .5 and outputs[2] < .5:
-        #     self.action_list.append((1, None, []))
 
 

@@ -95,8 +95,11 @@ class StateManager:
             self.addresses[data_pointer + ' 8F4'] = float_handler(player, 'action_frame')
             self.addresses[data_pointer + ' 1890'] = float_handler(player, 'percent')
             self.addresses[data_pointer + ' 19BC'] = float_handler(player, 'hitlag')
+            self.addresses[data_pointer + ' 23A0'] = float_handler(player, 'hitstun')
             self.addresses[data_pointer + ' 19C8'] = int_handler(player, 'jumps_used', 0, 0xFF)
             self.addresses[data_pointer + ' 19EC'] = int_handler(player, 'body_state', 0, 0xFF, BodyState, BodyState.Normal)
+            self.addresses[data_pointer + ' 19F8'] = int_handler(player, 'shield_size')
+            self.addresses[data_pointer + ' 19F8'] = int_handler(player, 'shield_size')
 
 
     def handle(self, address, value):
