@@ -61,12 +61,10 @@ class Agent:
             self.action_list.append((1, None, [])) # empty action
             self.action_list.append((1, None, []))
             self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5])) # tilt stick left
-            print("left")
         if outputs[1] >= .5:
             self.action_list.append((1, None, []))
             self.action_list.append((1, None, []))
             self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5])) # tilt stick right
-            print("right")
         if outputs[2] >= .5:
             self.action_list.append((1, None, []))
             self.action_list.append((1, None, []))
@@ -74,7 +72,5 @@ class Agent:
             self.action_list.append((1, None, []))
             self.action_list.append((1, None, []))
             self.action_list.append((1, pad.release_button, [p3.pad.Button.Y])) # release jump
-            print("jump")
         if outputs[0] < .5 and outputs[1] < .5 and outputs[2] < .5:
             self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5])) # tilt stick neutral
-            print("none")
