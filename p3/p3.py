@@ -115,6 +115,9 @@ def main():
     data = []
     last = []
 
+    # [0,0]
+    # [[0,0]]
+
     try:
         print('Start dolphin now. Press ^C to stop p3.')
         pad_path = dolphin_dir + '/Pipes/p3'
@@ -122,15 +125,16 @@ def main():
         with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
             run(fox, state, sm, mw, pad, pop, toolbox)
 
-        fitnesses = list(toolbox.evaluate(fox, pop))
-        for fit in fitnesses[0]:
+        fitnesses = list(toolbox.evaluate(fox, pop))[0]
+        print("these are the fitnesses: ", fitnesses)
+        for fit in fitnesses:
             temp = []
             temp.append(fit)
             fitnesses.append(temp)
         fitnesses.pop(0)
 
         for ind, fit in zip(pop, fitnesses):
-            ind.fitness.values = fit
+            ind.fitness.values = fit[0]
 
         while fox.generation < NGEN:
             fox.generation += 1
