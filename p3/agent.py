@@ -11,25 +11,50 @@ class Agent:
         self.brain          = nnet
         self.action_list    = []
         self.last_action    = 0
-        self.fitness        = 0
+        self.fitness        = [0, 0] # Damage recieved, damage dealt
+        #self.startDmgRecieved = 0
+        #self.startDmgDealt = 0
+
         self.reset()
 
     def reset(self):
-        self.fitness = 0
+        self.fitness = [0, 0]
 
     def fit(self, state, pad):
-        # decrease fitness in case of getting hit
-        if (state.players[2].hitlag > 0 or state.players[2].hitstun > 0):
-            self.fitness -= 100
-        # decrease fitness in case of dying
-        if (state.players[2].action_state == ActionState.Rebirth):
-            self.fitness -= 1000
-        # increase fitness in case of hitting opponent
-        if (state.players[0].hitlag > 0 or state.players[0].hitstun > 0):
-            self.fitness += 100
-        # increase fitness in case of killing opponent
-        if (state.players[0].action_state == ActionState.Rebirth):
-            self.fitness += 1000
+        # # decrease fitness in case of getting hit
+        # if (state.players[2].hitlag > 0 or state.players[2].hitstun > 0):
+        #     self.fitness -= 100
+        # # decrease fitness in case of dying
+        # if (state.players[2].action_state == ActionState.Rebirth):
+        #     self.fitness -= 1000
+        # # increase fitness in case of hitting opponent
+        # if (state.players[0].hitlag > 0 or state.players[0].hitstun > 0):
+        #     self.fitness += 100
+        # # increase fitness in case of killing opponent
+        # if (state.players[0].action_state == ActionState.Rebirth):
+        #     self.fitness += 1000
+
+    
+        # Updates damage recived    
+        self.fitness[0] += state.players[0].percent - self.fitness[0]
+
+        # Updateds damage dealt
+        self.fitness[1] += state.players[2].percent - self.fitness[1]
+
+        # if startDmgRecieved == 0:
+        #     startDmgRecieved = state.players[0].percent
+        # else 
+        #     fitness[0] = state.players[0].percent - startDmgRecieved
+
+        # if startDmgDealt == 0:
+        #     startDmgDealt = state.players[2].percent
+        # else 
+        #     fitness[1] = state.players[2].percent - startDmgDealt
+
+         
+
+
+
 
     # execute actions from action list
     def advance(self, state, pad):

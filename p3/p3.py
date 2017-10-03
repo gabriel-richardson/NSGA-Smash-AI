@@ -89,8 +89,9 @@ def main():
 
     fox = p3.fox.Fox()
 
-    creator.create("FitnessMax", base.Fitness, weights = (1.0,))
-    creator.create("Individual", list, fitness = creator.FitnessMax)
+    # Weights: (Minimize damage on self, Maximize damage dealt)
+    creator.create("FitnessOptima", base.Fitness, weights = (-1.0, 1.0))
+    creator.create("Individual", list, fitness = creator.FitnessOptima)
 
     toolbox = base.Toolbox()
 
@@ -102,7 +103,7 @@ def main():
 
     toolbox.register("mate", tools.cxUniform, indpb = 0.5)
     toolbox.register("mutate", tools.mutGaussian, mu = 0, sigma = .25, indpb = 0.05)
-    toolbox.register("select", tools.selTournament, tournsize = 3)
+    toolbox.register("select", tools.selNSGA2)
 
     CXPB, MUTPB, NGEN = 0.5, 0.2, 1000
     pop = toolbox.population()
