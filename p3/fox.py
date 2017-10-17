@@ -34,6 +34,6 @@ class Fox:
             if state.frame % 2 == 0:
                 self.agents[self.agent].advance(state, pad) # See Agent class for more on advance()
             # Change agent every x frames
-            if state.frame % 900 == 0:
+            if state.frame % 30 == 0:
                 self.agent += 1
         return self.agent

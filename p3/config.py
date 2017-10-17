@@ -8,7 +8,8 @@ game = dict(
     fps                 = 60, # frame per second
     delay               = 20, # terminal update delay
     n_best              = 5, # number of best agents
-    n_agents            = 30, # number of agents
+    # n_agents            = 30, # number of agents
+    n_agents            = 2 # number of agents
 )
 
 nnet = dict(

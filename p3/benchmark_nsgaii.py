@@ -52,9 +52,9 @@ def uniform(low, up, size=None):
         return [random.uniform(a, b) for a, b in zip([low] * size, [up] * size)]
 
 toolbox.register("attr_real", random.uniform, 0, 1)
-toolbox.register("individual", tools.initIterate, creator.Individual, toolbox.attr_real, c.nnet['n_weights'])
-toolbox.register("population", tools.initRepeat, list, toolbox.individual, n = c.game['n_agents'])
-# toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=100)
+toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_real, c.nnet['n_weights'])
+# toolbox.register("population", tools.initRepeat, list, toolbox.individual, n = c.game['n_agents'])
+toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=100)
 
 toolbox.register("evaluate", benchmarks.zdt1)
 # toolbox.register("mate", tools.cxUniform, indpb = 0.5)
@@ -108,8 +108,8 @@ def main(seed=None):
             
             toolbox.mutate(ind1)
             toolbox.mutate(ind2)
-            #numpy.clip(ind1, 0, 1)
-            #numpy.clip(ind2, 0, 1)
+            numpy.clip(ind1, 0, 1)
+            numpy.clip(ind2, 0, 1)
             del ind1.fitness.values, ind2.fitness.values
         
         # Evaluate the individuals with an invalid fitness
