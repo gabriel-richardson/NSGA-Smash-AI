@@ -18,7 +18,7 @@ class Fox:
         self.agents.append(Agent(len(self.agents), nnet))
 
     # Return list of fitness values for all agents
-    def get_ind_fitness(self, ind):
+    def get_ind_fitness(self):
         fits = []
         for a in self.agents:
             fits.append(a.fitness)

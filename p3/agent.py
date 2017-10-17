@@ -39,7 +39,7 @@ class Agent:
         self.fitness[0] += state.players[0].percent - self.fitness[0]
 
         # Updateds damage dealt
-        self.fitness[1] -= state.players[2].percent - self.fitness[1]
+        self.fitness[1] += state.players[2].percent - self.fitness[1]
 
         # if startDmgRecieved == 0:
         #     startDmgRecieved = state.players[0].percent
