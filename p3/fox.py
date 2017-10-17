@@ -13,6 +13,9 @@ class Fox:
         self.agent  = 0
         self.agents = []
 
+    def get_agents(self):
+        return self.agents
+
     # Add agent to agents list
     def add_agent(self, nnet):
         self.agents.append(Agent(len(self.agents), nnet))
@@ -34,6 +37,6 @@ class Fox:
             if state.frame % 2 == 0:
                 self.agents[self.agent].advance(state, pad) # See Agent class for more on advance()
             # Change agent every x frames
-            if state.frame % 900 == 0:
+            if state.frame % 10 == 0:
                 self.agent += 1
         return self.agent

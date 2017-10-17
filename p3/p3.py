@@ -84,7 +84,7 @@ def make_action(state, pad, mm, fox):
         mm.press_start_lots(state, pad)
     return True
 
-# TRAINING PROCESS USING DEAP
+# Training Process
 def main():
     dolphin_dir = find_dolphin_dir()
     if dolphin_dir is None:
@@ -123,7 +123,9 @@ def main():
     toolbox.register("mutate", tools.mutPolynomialBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0, indpb=1.0/NDIM)
     toolbox.register("select", tools.selNSGA2)
 
-    CXPB, MUTPB, NGEN = 0.9, 100, 1000
+    NGEN = 500
+    MU = 100
+    CXPB = 0.9
 
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     # stats.register("avg", numpy.mean, axis=0)
@@ -134,15 +136,18 @@ def main():
     logbook = tools.Logbook()
     logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
-    pop = toolbox.population(n=MUTPB)
+    # Create the population
+    pop = toolbox.population(n=MU)
 
+    # Add each individual to the list of agents
     for ind in pop:
         ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
         fox.add_agent(ann)
 
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
-    fitnesses = toolbox.map(toolbox.evaluate, fox.agents)
+    # fitnesses = toolbox.map(toolbox.evaluate, [x for x in invalid_ind])
+    fitnesses = toolbox.map(toolbox.evaluate, fox.get_agents())
     for ind, fit in zip(invalid_ind, fitnesses):
         ind.fitness.values = fit
 
@@ -159,56 +164,49 @@ def main():
         pad_path = dolphin_dir + '/Pipes/p3'
         mw_path = dolphin_dir + '/MemoryWatcher/MemoryWatcher'
 
-        with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
-            run(fox, state, sm, mw, pad, pop, toolbox)
-        fitnesses = list(toolbox.evaluate(fox))[0]
-
-        for ind, fit in zip(pop, fitnesses):
-            ind.fitness.values = fit[0]
-
         # Begin the generational process
         while fox.generation < NGEN:
             fox.generation += 1
             fox.reset() # resets number of agents and agents list
             
-            # offspring = tools.selTournamentDCD(pop, len(pop))  -- ASK TUTUM
-            offspring = toolbox.select(pop, c.game['n_agents'])
+            # Vary the population
+            offspring = tools.selTournamentDCD(pop, len(pop))
             offspring = [toolbox.clone(ind) for ind in offspring]
 
-            for child1, child2 in zip(offspring[::2], offspring[1::2]):
+            # Crossover and mutation
+            for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
                 if random.random() <= CXPB:
-                    toolbox.mate(child1, child2)
+                    toolbox.mate(ind1, ind2)
 
-                toolbox.mutate(child1)
-                toolbox.mutate(child2)
-                del child1.fitness.values, child2.fitness.values
+                toolbox.mutate(ind1)
+                toolbox.mutate(ind2)
+                del ind1.fitness.values, ind2.fitness.values
 
-            # Evaluate the individuals with an invalid fitness
-            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            fitnesses = toolbox.map(toolbox.evaluate, fox.agents)
-            for ind, fit in zip(invalid_ind, fitnesses):
-                ind.fitness.values = fit
-
+            # Add the offspring agents
             for ind in offspring:
                 ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
                 fox.add_agent(ann)
 
+            # Evaluate the individuals with an invalid fitness
+            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            fitnesses = toolbox.map(toolbox.evaluate, fox.get_agents())
+            for ind, fit in zip(invalid_ind, fitnesses):
+                ind.fitness.values = fit
+
+            # Run the population
             with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
                 run(fox, state, sm, mw, pad, offspring, toolbox)
 
             # Select the next generation population
             pop = toolbox.select(pop + offspring, MU)
+
+            # Collect stats
             record = stats.compile(pop)
-            logbook.record(gen=gen, evals=len(invalid_ind), **record)
+            logbook.record(gen=fox.generation, evals=len(invalid_ind), **record)
             print(logbook.stream)
 
-
         print("Training complete")
-        np.savetxt('data.txt', data)
-        np.savetxt('last.txt', last)
-    except KeyboardInterrupt:        
-        np.savetxt('data.txt', data)
-        np.savetxt('last.txt', last)
+    except KeyboardInterrupt:
         print('Stopped')
 
 if __name__ == '__main__':
@@ -216,9 +214,6 @@ if __name__ == '__main__':
 
 
 # Fitness Evaluation:
-def evalANN(agents):
-    fits = []
-    for a in agents:
-        fits.append(a.fitness)
-    return fits,
+def evalANN(agent):
+    return agent.fitness[0], agent.fitness[1]
     # comma at the end is necessarys since DEAP stores fitness values as a tuple
