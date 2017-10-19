@@ -13,9 +13,6 @@ class Fox:
         self.agent  = 0
         self.agents = []
 
-    def get_agents(self):
-        return self.agents
-
     # Add agent to agents list
     def add_agent(self, nnet):
         self.agents.append(Agent(len(self.agents), nnet))

@@ -11,8 +11,7 @@ class Agent:
         self.brain          = nnet
         self.action_list    = []
         self.last_action    = 0
-        self.fitness        = [0, 0] # Damage recieved, damage dealt
-        #self.startDmgRecieved = 0
+        self.fitness        = [0, 0] # Damage recieved, damage dealt#self.startDmgRecieved = 0
         #self.startDmgDealt = 0
 
         self.reset()
@@ -36,10 +35,14 @@ class Agent:
 
     
         # Updates damage recived    
-        self.fitness[0] += state.players[0].percent - self.fitness[0]
+        if ActionState.Rebirth:
+            self.reset()
 
-        # Updateds damage dealt
-        self.fitness[1] += state.players[2].percent - self.fitness[1]
+
+        self.fitness[0] += state.players[2].percent - self.fitness[0]
+
+        # Updates damage dealt
+        self.fitness[1] += state.players[1].percent - self.fitness[1]
 
         # if startDmgRecieved == 0:
         #     startDmgRecieved = state.players[0].percent

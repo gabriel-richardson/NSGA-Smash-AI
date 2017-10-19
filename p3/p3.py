@@ -84,7 +84,7 @@ def make_action(state, pad, mm, fox):
         mm.press_start_lots(state, pad)
     return True
 
-# Training Process
+# TRAINING PROCESS USING DEAP
 def main():
     dolphin_dir = find_dolphin_dir()
     if dolphin_dir is None:
@@ -123,9 +123,7 @@ def main():
     toolbox.register("mutate", tools.mutPolynomialBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0, indpb=1.0/NDIM)
     toolbox.register("select", tools.selNSGA2)
 
-    NGEN = 500
-    MU = 100
-    CXPB = 0.9
+    CXPB, MUTPB, NGEN = 0.9, 100, 40
 
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     # stats.register("avg", numpy.mean, axis=0)
@@ -136,20 +134,17 @@ def main():
     logbook = tools.Logbook()
     logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
-    # Create the population
-    pop = toolbox.population(n=MU)
+    pop = toolbox.population(n=MUTPB)
 
-    # Add each individual to the list of agents
     for ind in pop:
         ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
         fox.add_agent(ann)
 
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
-    # fitnesses = toolbox.map(toolbox.evaluate, [x for x in invalid_ind])
-    fitnesses = toolbox.map(toolbox.evaluate, fox.get_agents())
-    for ind, fit in zip(invalid_ind, fitnesses):
-        ind.fitness.values = fit
+    fitnesses = toolbox.evaluate(fox.agents)
+    for ind, fit in zip(invalid_ind, fitnesses[0]):
+        ind.fitness.values = tuple(fit)
 
     # This is just to assign the crowding distance to the individuals
     # no actual selection is done
@@ -164,56 +159,94 @@ def main():
         pad_path = dolphin_dir + '/Pipes/p3'
         mw_path = dolphin_dir + '/MemoryWatcher/MemoryWatcher'
 
+        with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
+            run(fox, state, sm, mw, pad, pop, toolbox)
+        fitnesses = toolbox.evaluate(fox.agents)
+        for ind, fit in zip(pop, fitnesses[0]):
+            ind.fitness.values = tuple(fit)
+
         # Begin the generational process
         while fox.generation < NGEN:
             fox.generation += 1
-            fox.reset() # resets number of agents and agents list
+            # fox.reset() # resets number of agents and agents list
             
-            # Vary the population
-            offspring = tools.selTournamentDCD(pop, len(pop))
-            offspring = [toolbox.clone(ind) for ind in offspring]
+            # offspring = tools.selTournamentDCD(pop, len(pop))  -- ASK TUTUM
+            offspring = toolbox.select(pop, c.game['n_agents'])
+            # offspring = [toolbox.clone(ind) for ind in offspring]
 
-            # Crossover and mutation
-            for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
+            for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 if random.random() <= CXPB:
-                    toolbox.mate(ind1, ind2)
+                    toolbox.mate(child1, child2)
 
-                toolbox.mutate(ind1)
-                toolbox.mutate(ind2)
-                del ind1.fitness.values, ind2.fitness.values
+                toolbox.mutate(child1)
+                toolbox.mutate(child2)
+                del child1.fitness.values, child2.fitness.values
 
-            # Add the offspring agents
-            for ind in offspring:
-                ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
-                fox.add_agent(ann)
+
 
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            fitnesses = toolbox.map(toolbox.evaluate, fox.get_agents())
-            for ind, fit in zip(invalid_ind, fitnesses):
+            fitnesses = toolbox.evaluate(fox.agents)
+            for ind, fit in zip(invalid_ind, fitnesses[0]):
                 ind.fitness.values = fit
-
-            # Run the population
-            with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
-                run(fox, state, sm, mw, pad, offspring, toolbox)
+                # print(fit)
 
             # Select the next generation population
-            pop = toolbox.select(pop + offspring, MU)
-
-            # Collect stats
+            pop = toolbox.select(offspring, len(offspring))
             record = stats.compile(pop)
             logbook.record(gen=fox.generation, evals=len(invalid_ind), **record)
             print(logbook.stream)
 
+            fox.reset()
+            for ind in offspring:
+                ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
+                fox.add_agent(ann)
+
+            with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
+                run(fox, state, sm, mw, pad, offspring, toolbox)
+
+
+
         print("Training complete")
-    except KeyboardInterrupt:
+        # np.savetxt('data.txt', data)
+        # np.savetxt('last.txt', last)
+        with open("pareto_front/zdt1_front.json") as optimal_front_data:
+            optimal_front = json.load(optimal_front_data)
+        # Use 500 of the 1000 points in the json file
+        optimal_front = sorted(optimal_front[i] for i in range(0, len(optimal_front), 2))
+        
+        print("I am being run, right?!")
+        # pop, logbook = main()
+        # print(pop)
+        pop.sort(key=lambda x: x.fitness.values)
+        
+        print(logbook)
+        print("Convergence: ", convergence(pop, optimal_front))
+        print("Diversity: ", diversity(pop, optimal_front[0], optimal_front[-1]))
+        
+        import matplotlib.pyplot as plt
+        import numpy
+        
+        front = numpy.array([ind.fitness.values for ind in pop])
+        optimal_front = numpy.array(optimal_front)
+        plt.scatter(optimal_front[:,0], optimal_front[:,1], c="r")
+        plt.scatter(front[:,0], front[:,1], c="b")
+        plt.axis("tight")
+        plt.show()
+    except KeyboardInterrupt:        
+        # np.savetxt('data.txt', data)
+        # np.savetxt('last.txt', last)
         print('Stopped')
 
-if __name__ == '__main__':
-    main()
+print(__name__)
+# if __name__ == '__main__':
+    
 
 
 # Fitness Evaluation:
-def evalANN(agent):
-    return agent.fitness[0], agent.fitness[1]
+def evalANN(agents):
+    fits = []
+    for a in agents:
+        fits.append(a.fitness)
+    return fits,
     # comma at the end is necessarys since DEAP stores fitness values as a tuple
