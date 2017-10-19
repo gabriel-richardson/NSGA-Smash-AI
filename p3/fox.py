@@ -13,6 +13,7 @@ class Fox:
         self.agent  = 0
         self.agents = []
 
+
     # Add agent to agents list
     def add_agent(self, nnet):
         self.agents.append(Agent(len(self.agents), nnet))
@@ -27,13 +28,26 @@ class Fox:
     # Advance frame by 1
     def advance(self, state, pad, mm):
         if self.agent < len(self.agents):
-            # Adjust agent fitness value
-            if state.frame % 1 == 0:
-                self.agents[self.agent].fit(state, pad) # See Agent class for more on fit()
             # Change agent move
             if state.frame % 2 == 0:
                 self.agents[self.agent].advance(state, pad) # See Agent class for more on advance()
             # Change agent every x frames
-            if state.frame % 10 == 0:
+            if state.frame % 300 == 0:
+                # Adjust agent fitness value
+                self.agents[self.agent].fit(state, pad) # See Agent class for more on fit()
+
+                # set the next agents prevFitness to be the current fitness
+                # unless you are the last agent (prevent index out of bounds error)
+
+                for a in self.agents:
+                    print(a.prev_fitness, " - ", a.fitness, state.players[1].percent)
+
+                print("\n")
+
+                if(self.agent + 1 < len(self.agents)):
+                    self.agents[self.agent + 1].prev_fitness[0] = self.agents[self.agent].fitness[0]
+                    self.agents[self.agent + 1].prev_fitness[1] = self.agents[self.agent].fitness[1]
+                    # print(self.agent, ": ", "\t", self.agents[self.agent].fitness[1])
                 self.agent += 1
         return self.agent
+

@@ -25,7 +25,7 @@ from deap import tools
 from deap import algorithms
 from deap.benchmarks.tools import diversity, convergence
 
-
+random.seed(12345)
 
 def find_dolphin_dir():
     """
@@ -134,7 +134,7 @@ def main():
     logbook = tools.Logbook()
     logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
-    pop = toolbox.population(n=MUTPB)
+    pop = toolbox.population()
 
     for ind in pop:
         ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
