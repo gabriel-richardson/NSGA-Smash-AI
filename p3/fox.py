@@ -3,6 +3,7 @@ import p3.pad
 import p3.config as c
 from p3.agent import Agent
 
+
 class Fox:
     def __init__(self):
         self.agent       = 0 # individual agent number
@@ -40,7 +41,8 @@ class Fox:
                 # unless you are the last agent (prevent index out of bounds error)
 
                 for a in self.agents:
-                    print(a.prev_fitness, " - ", a.fitness, state.players[1].percent)
+                    print("[{3:.2f}, {3:.2f}] - [{3:.2f}, {3:.2f}] : {3:.2f}".format(float(a.prev_fitness[0]),float(a.prev_fitness[1]), float(a.fitness[0]),float(a.fitness[1]), float(state.players[1].percent)))
+                    # print(a.prev_fitness, " - ", a.fitness, state.players[1].percent)
 
                 print("\n")
 
