@@ -14,7 +14,6 @@ class Fox:
         self.agent  = 0
         self.agents = []
 
-
     # Add agent to agents list
     def add_agent(self, nnet):
         self.agents.append(Agent(len(self.agents), nnet))
@@ -39,17 +38,16 @@ class Fox:
 
                 # set the next agents prevFitness to be the current fitness
                 # unless you are the last agent (prevent index out of bounds error)
-
+                if(self.agent + 1 < len(self.agents)):
+                    a = self.agents[self.agent]
+                    self.agents[self.agent + 1].prev_fitness[0] = state.players[2].percent
+                    self.agents[self.agent + 1].prev_fitness[1] = state.players[1].percent
+                    
                 for a in self.agents:
-                    print("[{3:.2f}, {3:.2f}] - [{3:.2f}, {3:.2f}] : {3:.2f}".format(float(a.prev_fitness[0]),float(a.prev_fitness[1]), float(a.fitness[0]),float(a.fitness[1]), float(state.players[1].percent)))
-                    # print(a.prev_fitness, " - ", a.fitness, state.players[1].percent)
+                    print(a.number, ": [{0:.2f}".format(a.prev_fitness[0]), ", {0:.2f}] ".format(a.prev_fitness[1]), "[{0:.2f}".format(a.fitness[0]), ", {0:.2f}] ".format(a.fitness[1]))
 
                 print("\n")
 
-                if(self.agent + 1 < len(self.agents)):
-                    self.agents[self.agent + 1].prev_fitness[0] = self.agents[self.agent].fitness[0]
-                    self.agents[self.agent + 1].prev_fitness[1] = self.agents[self.agent].fitness[1]
-                    # print(self.agent, ": ", "\t", self.agents[self.agent].fitness[1])
                 self.agent += 1
         return self.agent
 

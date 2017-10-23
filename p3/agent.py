@@ -12,10 +12,7 @@ class Agent:
         self.action_list    = []
         self.last_action    = 0
         self.prev_fitness    = [0, 0]
-        self.fitness        = [0, 0] # Damage recieved, damage dealt#self.startDmgRecieved = 0
-        #self.startDmgDealt = 0
-
-        self.reset()
+        self.fitness        = [0, 0] # Damage recieved, damage dealt
 
     def reset(self):
         self.fitness = [0, 0]
@@ -34,10 +31,7 @@ class Agent:
         # if (state.players[0].action_state == ActionState.Rebirth):
         #     self.fitness += 1000
 
-    
-          
-        if ActionState.Rebirth:
-            self.reset()
+        
 
         # Updates damage recived  
         # 
