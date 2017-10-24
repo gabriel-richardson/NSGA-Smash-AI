@@ -11,59 +11,40 @@ class Agent:
         self.brain          = nnet
         self.action_list    = []
         self.last_action    = 0
-        self.prev_fitness    = [0, 0]
-        self.fitness        = [0, 0] # Damage recieved, damage dealt
+        self.prev_percent   = [0, 0] # Damage received, damage dealt
+        self.fitness        = [0, 0] # Damage received, damage dealt
 
-    def reset(self):
-        self.fitness = [0, 0]
+    # if agent dies, reset prev_percent[received] to 0 to avoid negative values
+    def agent_death(self):
+        self.prev_percent[0] = 0
+
+    # if cpu dies, reset prev_percent[dealt] to 0 to avoid negative values
+    def cpu_death(self):
+        self.prev_percent[1] = 0
 
     def fit(self, state, pad):
-        # # decrease fitness in case of getting hit
-        # if (state.players[2].hitlag > 0 or state.players[2].hitstun > 0):
-        #     self.fitness -= 100
-        # # decrease fitness in case of dying
-        # if (state.players[2].action_state == ActionState.Rebirth):
-        #     self.fitness -= 1000
-        # # increase fitness in case of hitting opponent
-        # if (state.players[0].hitlag > 0 or state.players[0].hitstun > 0):
-        #     self.fitness += 100
-        # # increase fitness in case of killing opponent
-        # if (state.players[0].action_state == ActionState.Rebirth):
-        #     self.fitness += 1000
-
-        
-
-        # Updates damage recived  
+        # Updates damage received  
         # 
         # update this agent with the current game percentage (of the AI agent) 
-        # minus the previous agents fitness (so that we get only the fitness made by the
-        # current agent)
-        self.fitness[0] = state.players[2].percent - self.prev_fitness[0]
+        # minus the previous percentage (so that we get only the percent diff
+        # made by the current agent)
+        self.fitness[0] = state.players[2].percent - self.prev_percent[0]
 
         # Updates damage dealt
         # 
-        # # update this agent with the current game percentage (of the AI agent) 
-        # minus the previous agents fitness (so that we get only the fitness made by the
-        # current agent)
-        self.fitness[1] = state.players[1].percent - self.prev_fitness[1]
-
-        # if startDmgRecieved == 0:
-        #     startDmgRecieved = state.players[0].percent
-        # else 
-        #     fitness[0] = state.players[0].percent - startDmgRecieved
-
-        # if startDmgDealt == 0:
-        #     startDmgDealt = state.players[2].percent
-        # else 
-        #     fitness[1] = state.players[2].percent - startDmgDealt
-
-         
-
-
-
+        # update this agent with the current game percentage (of the AI agent) 
+        # minus the previous percentage (so that we get only the percent diff
+        # made by the current agent)
+        self.fitness[1] = state.players[1].percent - self.prev_percent[1]
 
     # execute actions from action list
     def advance(self, state, pad):
+        if (state.players[2].action_state == ActionState.Rebirth):
+            self.agent_death()
+
+        if (state.players[1].action_state == ActionState.Rebirth):
+            self.cpu_death()
+
         while self.action_list:
             wait, func, args = self.action_list[0]
             if state.frame - self.last_action < wait:

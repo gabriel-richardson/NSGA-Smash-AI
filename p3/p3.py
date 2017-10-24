@@ -123,7 +123,7 @@ def main():
     toolbox.register("mutate", tools.mutPolynomialBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0, indpb=1.0/NDIM)
     toolbox.register("select", tools.selNSGA2)
 
-    CXPB, MUTPB, NGEN = 0.9, 100, 40
+    CXPB, MUTPB, NGEN = 0.9, 100, 30
 
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     # stats.register("avg", numpy.mean, axis=0)
@@ -210,7 +210,7 @@ def main():
         print("Training complete")
         # np.savetxt('data.txt', data)
         # np.savetxt('last.txt', last)
-        with open("pareto_front/zdt1_front.json") as optimal_front_data:
+        with open("zdt1_front.json") as optimal_front_data:
             optimal_front = json.load(optimal_front_data)
         # Use 500 of the 1000 points in the json file
         optimal_front = sorted(optimal_front[i] for i in range(0, len(optimal_front), 2))
