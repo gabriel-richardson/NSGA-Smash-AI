@@ -16,7 +16,7 @@ class Agent:
         self.prev_percent   = [0, 0] # Damage received, damage dealt
         self.fitness        = [0, 0] # Damage received, damage dealt
 
-    def restart(self, state, pad):
+    # def restart(self, state, pad):
         # restart_list = []
         # self.restart_list.append((0, pad.press_button, [p3.pad.Button.START]))
         # self.restart_list.append((1, pad.release_button, [p3.pad.Button.START]))
@@ -131,20 +131,20 @@ class Agent:
             self.action_list.append((1, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.0]))
         if outputs[8] >= .5: # Neutral
             self.action_list.append((1, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
-        # if outputs[9] >= .5: # A Button
-        #     self.action_list.append((1, pad.press_button, [p3.pad.Button.A]))
-        #     self.action_list.append((2, pad.release_button, [p3.pad.Button.A]))
-        # if outputs[10] >= .5: # B Button
-        #     self.action_list.append((1, pad.press_button, [p3.pad.Button.B]))
-        #     self.action_list.append((2, pad.release_button, [p3.pad.Button.B]))
-        # if outputs[11] >= .5: # Y Button
-        #     self.action_list.append((1, pad.press_button, [p3.pad.Button.Y]))
-        #     self.action_list.append((2, pad.release_button, [p3.pad.Button.Y]))
-        # if outputs[12] >= .5: # Z Button
-        #     self.action_list.append((1, pad.press_button, [p3.pad.Button.Z]))
-        #     self.action_list.append((2, pad.release_button, [p3.pad.Button.Z]))
-        # if outputs[13] >= .5: # L Trigger
-        #     self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 1]))
-        #     self.action_list.append((2, pad.press_trigger, [p3.pad.Trigger.L, 0]))
+        if outputs[9] >= .5: # A Button
+            self.action_list.append((1, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((2, pad.release_button, [p3.pad.Button.A]))
+        if outputs[10] >= .5: # B Button
+            self.action_list.append((1, pad.press_button, [p3.pad.Button.B]))
+            self.action_list.append((2, pad.release_button, [p3.pad.Button.B]))
+        if outputs[11] >= .5: # Y Button
+            self.action_list.append((1, pad.press_button, [p3.pad.Button.Y]))
+            self.action_list.append((2, pad.release_button, [p3.pad.Button.Y]))
+        if outputs[12] >= .5: # Z Button
+            self.action_list.append((1, pad.press_button, [p3.pad.Button.Z]))
+            self.action_list.append((2, pad.release_button, [p3.pad.Button.Z]))
+        if outputs[13] >= .5: # L Trigger
+            self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 1]))
+            self.action_list.append((2, pad.press_trigger, [p3.pad.Trigger.L, 0]))
 
 
