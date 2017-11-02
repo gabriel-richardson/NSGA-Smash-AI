@@ -20,8 +20,7 @@ class ANN(object):
         # x is the net input to the neuron (previously represented as "z" during the class)
         # a is the activation value ( a = activation(z) )
         # activation function could be sigmoid function: 1/(1+exp(-x))
-        a = 1/(1+np.exp(-x))
-        return a
+        return 1/(1+np.exp(-x))
 
     def evaluate(self, inputs):
         # Compute outputs from the fully connected feed-forward ANN:

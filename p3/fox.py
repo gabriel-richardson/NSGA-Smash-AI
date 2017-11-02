@@ -9,7 +9,7 @@ class Fox:
         self.agent       = 0 # individual agent number
         self.agents      = [] # list of agents
         self.generation  = 0 # generation number
-        self.special     = [0, 0]
+        self.special     = [0, 0] # stores percentages for last agent in a generation
 
     def reset(self):
         self.agent  = 0
@@ -34,6 +34,7 @@ class Fox:
                 self.agents[self.agent].advance(state, pad) # See Agent class for more on advance()
             # Change agent every x frames
             if state.frame % 300 == 0:
+                # self.agents[self.agent].restart(state, pad)
                 # set the previous percent equal to the stored percent from last generation
                 if (self.agent == 0):
                     self.agents[self.agent].prev_percent[0] = self.special[0]

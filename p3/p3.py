@@ -73,10 +73,12 @@ def run(fox, state, sm, mw, pad, pop, toolbox):
 
 def make_action(state, pad, mm, fox):
     if state.menu == p3.state.Menu.Game:
+        pad.release_button(p3.pad.Button.START)
         if fox.advance(state, pad, mm) == c.game['n_agents']:
             pad.reset()
             return False
     elif state.menu == p3.state.Menu.Characters:
+        # print(state.players[0].cursor_x, state.players[0].cursor_y)
         mm.pick_fox(state, pad)
     elif state.menu == p3.state.Menu.Stages:
         mm.press_start_lots(state, pad)
