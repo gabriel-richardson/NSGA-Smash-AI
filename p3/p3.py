@@ -3,6 +3,7 @@ from sys import platform
 import random
 import math
 import numpy as np
+import matplotlib.pyplot as plt
 
 import p3.fox
 import p3.memory_watcher
@@ -106,7 +107,7 @@ def main():
 
     toolbox = base.Toolbox()
 
-    BOUND_LOW, BOUND_UP = 0.0, 1.0
+    BOUND_LOW, BOUND_UP = -1.0, 1.0
     NDIM = 30
 
     def uniform(low, up, size=None):
@@ -115,7 +116,7 @@ def main():
         except TypeError:
             return [random.uniform(a, b) for a, b in zip([low] * size, [up] * size)]
 
-    toolbox.register("attr_real", random.uniform, 0, 1)
+    toolbox.register("attr_real", random.uniform, -1, 1)
     toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_real, c.nnet['n_weights'])
     toolbox.register("population", tools.initRepeat, list, toolbox.individual, n = c.game['n_agents'])
 
@@ -125,7 +126,7 @@ def main():
     toolbox.register("mutate", tools.mutPolynomialBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0, indpb=1.0/NDIM)
     toolbox.register("select", tools.selNSGA2)
 
-    CXPB, MUTPB, NGEN = 0.9, 100, 30
+    CXPB, MUTPB, NGEN = 0.9, 100, 2000
 
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     # stats.register("avg", numpy.mean, axis=0)
@@ -154,7 +155,7 @@ def main():
     
     record = stats.compile(pop)
     logbook.record(gen=0, evals=len(invalid_ind), **record)
-    print(logbook.stream)
+    # print(logbook.stream)
 
     try:
         print('Start dolphin now. Press ^C to stop p3.')
@@ -174,7 +175,7 @@ def main():
             
             # offspring = tools.selTournamentDCD(pop, len(pop))  -- ASK TUTUM
             offspring = toolbox.select(pop, c.game['n_agents'])
-            # offspring = [toolbox.clone(ind) for ind in offspring]
+            offspring = [toolbox.clone(ind) for ind in offspring]
 
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
                 if random.random() <= CXPB:
@@ -207,43 +208,18 @@ def main():
             with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
                 run(fox, state, sm, mw, pad, offspring, toolbox)
 
-
+            if (fox.generation % 50 == 0):
+                statistics(pop, logbook, fox.generation)
 
         print("Training complete")
-        # np.savetxt('data.txt', data)
-        # np.savetxt('last.txt', last)
-        with open("zdt1_front.json") as optimal_front_data:
-            optimal_front = json.load(optimal_front_data)
-        # Use 500 of the 1000 points in the json file
-        optimal_front = sorted(optimal_front[i] for i in range(0, len(optimal_front), 2))
-        
-        print("I am being run, right?!")
-        # pop, logbook = main()
-        # print(pop)
-        pop.sort(key=lambda x: x.fitness.values)
-        
-        print(logbook)
-        print("Convergence: ", convergence(pop, optimal_front))
-        print("Diversity: ", diversity(pop, optimal_front[0], optimal_front[-1]))
-        
-        import matplotlib.pyplot as plt
-        import numpy
-        
-        front = numpy.array([ind.fitness.values for ind in pop])
-        optimal_front = numpy.array(optimal_front)
-        plt.scatter(optimal_front[:,0], optimal_front[:,1], c="r")
-        plt.scatter(front[:,0], front[:,1], c="b")
-        plt.axis("tight")
-        plt.show()
+
     except KeyboardInterrupt:        
         # np.savetxt('data.txt', data)
         # np.savetxt('last.txt', last)
         print('Stopped')
 
-print(__name__)
+# print(__name__)
 # if __name__ == '__main__':
-    
-
 
 # Fitness Evaluation:
 def evalANN(agents):
@@ -252,3 +228,21 @@ def evalANN(agents):
         fits.append(a.fitness)
     return fits,
     # comma at the end is necessarys since DEAP stores fitness values as a tuple
+
+def statistics(pop, logbook, gen):
+    with open("zdt1_front.json") as optimal_front_data:
+        optimal_front = json.load(optimal_front_data)
+    # Use 500 of the 1000 points in the json file
+    optimal_front = sorted(optimal_front[i] for i in range(0, len(optimal_front), 2))
+    pop.sort(key=lambda x: x.fitness.values)
+    
+    # print(logbook)
+    print("Convergence: ", convergence(pop, optimal_front))
+    print("Diversity: ", diversity(pop, optimal_front[0], optimal_front[-1]))
+    
+    front = np.array([ind.fitness.values for ind in pop])
+    optimal_front = np.array(optimal_front)
+    # plt.scatter(optimal_front[:,0], optimal_front[:,1], c="r")
+    plt.scatter(front[:,1], front[:,0], c="b")
+    plt.axis("tight")
+    plt.savefig("gen_" + str(gen) + ".png")

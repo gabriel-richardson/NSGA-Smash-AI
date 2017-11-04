@@ -12,8 +12,8 @@ game = dict(
 )
 
 nnet = dict(
-    n_inputs    = 19,
-    n_h_neurons = 30,
+    n_inputs    = 4,
+    n_h_neurons = 8,
     n_outputs   = 14,
-    n_weights   = (19+1) * (30) + (30+1) * (14), # (inputs + bias) * (h_neurons) + (h_neurons + bias) * (outputs)
+    n_weights   = (4+1) * (8) + (8+1) * (14), # (inputs + bias) * (h_neurons) + (h_neurons + bias) * (outputs)
 )
