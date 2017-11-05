@@ -36,7 +36,7 @@ creator.create("Individual", list, fitness = creator.FitnessOptima)
 toolbox = base.Toolbox()
 
 # Problem definition
-# Functions zdt1, zdt2, zdt3, zdt6 have bounds [0, 1]
+# Functions zZfZ`       , zdt2, zdt3, zdt6 have bounds [0, 1]
 BOUND_LOW, BOUND_UP = 0.0, 1.0
 
 # Functions zdt4 has bounds x1 = [0, 1], xn = [-5, 5], with n = 2, ..., 10
@@ -56,7 +56,7 @@ toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.att
 # toolbox.register("population", tools.initRepeat, list, toolbox.individual, n = c.game['n_agents'])
 toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=100)
 
-toolbox.register("evaluate", benchmarks.zdt4)
+toolbox.register("evaluate", benchmarks.zdt3)
 # toolbox.register("mate", tools.cxUniform, indpb = 0.5)
 # mu = vary from median, sigma = spread of values on the bell curve
 toolbox.register("mate", tools.cxSimulatedBinaryBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0)
@@ -66,7 +66,7 @@ toolbox.register("select", tools.selNSGA2)
 def main(seed=1):
     random.seed(seed)
 
-    NGEN = 1000
+    NGEN = 250
     MU = 100
     CXPB = 0.9
 
@@ -79,7 +79,7 @@ def main(seed=1):
     logbook = tools.Logbook()
     logbook.header = "gen", "evals", "std", "min", "avg", "max"
     
-    pop = toolbox.population(n=MU)
+    pop = toolbox.population()
 
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
@@ -128,7 +128,7 @@ def main(seed=1):
     return pop, logbook
         
 if __name__ == "__main__":
-    with open("pareto_front/zdt1_front.json") as optimal_front_data:
+    with open("pareto_front/zdt3_front.json") as optimal_front_data:
         optimal_front = json.load(optimal_front_data)
     # Use 500 of the 1000 points in the json file
     optimal_front = sorted(optimal_front[i] for i in range(0, len(optimal_front), 2))
@@ -145,7 +145,7 @@ if __name__ == "__main__":
     
     front = numpy.array([ind.fitness.values for ind in pop])
     optimal_front = numpy.array(optimal_front)
-    # plt.scatter(optimal_front[:,0], optimal_front[:,1], c="r")
+    plt.scatter(optimal_front[:,0], optimal_front[:,1], c="r")
     plt.scatter(front[:,0], front[:,1], c="b")
     plt.axis("tight")
     plt.show()

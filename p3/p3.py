@@ -139,6 +139,7 @@ def main():
 
     pop = toolbox.population()
 
+    # Add agents to the population
     for ind in pop:
         ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
         fox.add_agent(ann)
@@ -152,9 +153,6 @@ def main():
     # This is just to assign the crowding distance to the individuals
     # no actual selection is done
     pop = toolbox.select(pop, len(pop))
-    
-    record = stats.compile(pop)
-    logbook.record(gen=0, evals=len(invalid_ind), **record)
     # print(logbook.stream)
 
     try:
@@ -174,7 +172,7 @@ def main():
             # fox.reset() # resets number of agents and agents list
             
             # offspring = tools.selTournamentDCD(pop, len(pop))  -- ASK TUTUM
-            offspring = toolbox.select(pop, c.game['n_agents'])
+            offspring = toolbox.select(pop, len(pop))
             offspring = [toolbox.clone(ind) for ind in offspring]
 
             for child1, child2 in zip(offspring[::2], offspring[1::2]):
@@ -184,8 +182,6 @@ def main():
                 toolbox.mutate(child1)
                 toolbox.mutate(child2)
                 del child1.fitness.values, child2.fitness.values
-
-
 
             # Evaluate the individuals with an invalid fitness
             invalid_ind = [ind for ind in offspring if not ind.fitness.valid]

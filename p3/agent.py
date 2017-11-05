@@ -57,9 +57,6 @@ class Agent:
         else:
             self.fitness[0] = 0
 
-        if (state.players[2].action_state == ActionState.Rebirth):
-            self.fitness[0] += 10
-
         # Updates damage dealt
         # 
         # update this agent with the current game percentage (of the AI agent) 
@@ -70,9 +67,6 @@ class Agent:
             self.fitness[1] = dealt
         else:
             self.fitness[1] = 0
-
-        if (state.players[1].action_state == ActionState.Rebirth):
-            self.fitness[1] += 10
 
     # execute actions from action list
     def advance(self, state, pad):
