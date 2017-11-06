@@ -21,10 +21,10 @@ creator.create("Individual", list, fitness = creator.FitnessOptima)
 toolbox = base.Toolbox()
 
 # Functions zdt1, zdt2, zdt3, zdt6 have bounds [0, 1]
-BOUND_LOW, BOUND_UP = 0.0, 1.0
+# BOUND_LOW, BOUND_UP = 0.0, 1.0
 
 # Functions zdt4 has bounds x1 = [0, 1], xn = [-5, 5], with n = 2, ..., 10
-# BOUND_LOW, BOUND_UP = [0.0] + [-5.0]*9, [1.0] + [5.0]*9
+BOUND_LOW, BOUND_UP = [0.0] + [-5.0]*9, [1.0] + [5.0]*9
 
 # Functions zdt1, zdt2, zdt3 have 30 dimensions, zdt4 and zdt6 have 10
 NDIM = 30
@@ -39,7 +39,7 @@ toolbox.register("attr_real", random.uniform, 0, 1)
 toolbox.register("individual", tools.initRepeat, creator.Individual, toolbox.attr_real, 10)
 toolbox.register("population", tools.initRepeat, list, toolbox.individual, n=100)
 
-toolbox.register("evaluate", benchmarks.zdt1)
+toolbox.register("evaluate", benchmarks.zdt4)
 toolbox.register("mate", tools.cxSimulatedBinaryBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0)
 toolbox.register("mutate", tools.mutPolynomialBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0, indpb=1.0/NDIM)
 toolbox.register("select", tools.selNSGA2)
@@ -78,7 +78,7 @@ def main(seed=1):
     # Begin the generational process
     for gen in range(1, NGEN):
         # Vary the population
-        offspring = tools.selTournamentDCD(pop, len(pop))
+        offspring = toolbox.select(pop, len(pop))
         offspring = [toolbox.clone(ind) for ind in offspring]
         
         for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
@@ -107,7 +107,7 @@ def main(seed=1):
     return pop, logbook
         
 if __name__ == "__main__":
-    with open("pareto_front/zdt1_front.json") as optimal_front_data:
+    with open("pareto_front/zdt4_front.json") as optimal_front_data:
         optimal_front = json.load(optimal_front_data)
     # Use 500 of the 1000 points in the json file
     optimal_front = sorted(optimal_front[i] for i in range(0, len(optimal_front), 2))
