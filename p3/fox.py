@@ -33,7 +33,7 @@ class Fox:
             if state.frame % 2 == 0:
                 self.agents[self.agent].advance(state, pad) # See Agent class for more on advance()
             # Change agent every x frames
-            if state.frame % 300 == 0:
+            if state.frame % 600 == 0:
                 # self.agents[self.agent].restart(state, pad)
                 # set the previous percent equal to the stored percent from last generation
                 if (self.agent == 0):

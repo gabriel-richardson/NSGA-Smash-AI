@@ -4,6 +4,8 @@ import random
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt2
+import json
 
 import p3.fox
 import p3.memory_watcher
@@ -27,6 +29,7 @@ from deap import algorithms
 from deap.benchmarks.tools import diversity, convergence
 
 random.seed(12345)
+i = 1
 
 def find_dolphin_dir():
     """
@@ -81,6 +84,7 @@ def make_action(state, pad, mm, fox):
     elif state.menu == p3.state.Menu.Characters:
         # print(state.players[0].cursor_x, state.players[0].cursor_y)
         mm.pick_fox(state, pad)
+        print(state.players[1].character)
     elif state.menu == p3.state.Menu.Stages:
         mm.press_start_lots(state, pad)
     elif state.menu == p3.state.Menu.PostGame:
@@ -90,6 +94,8 @@ def make_action(state, pad, mm, fox):
 # TRAINING PROCESS USING DEAP
 def main():
     dolphin_dir = find_dolphin_dir()
+    pad_path = dolphin_dir + '/Pipes/p3'
+    mw_path = dolphin_dir + '/MemoryWatcher/MemoryWatcher'
     if dolphin_dir is None:
         print('Could not find dolphin config dir.')
         return
@@ -126,7 +132,7 @@ def main():
     toolbox.register("mutate", tools.mutPolynomialBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0, indpb=1.0/NDIM)
     toolbox.register("select", tools.selNSGA2)
 
-    CXPB, MUTPB, NGEN = 0.9, 100, 2000
+    CXPB, MUTPB, NGEN = 0.9, 30, 2000
 
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     # stats.register("avg", numpy.mean, axis=0)
@@ -138,11 +144,18 @@ def main():
     logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
     pop = toolbox.population()
+    # to load in trained weights:
+    # with open("population.txt", "r") as infile:
+    #     pop = json.load(infile)
 
     # Add agents to the population
     for ind in pop:
         ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
         fox.add_agent(ann)
+
+    print('Start dolphin now. Press ^C to stop p3.')
+    with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
+        run(fox, state, sm, mw, pad, pop, toolbox)
 
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
@@ -153,25 +166,22 @@ def main():
     # This is just to assign the crowding distance to the individuals
     # no actual selection is done
     pop = toolbox.select(pop, len(pop))
-    # print(logbook.stream)
+
+    record = stats.compile(pop)
+    logbook.record(gen=0, evals=len(invalid_ind), **record)
+    print(logbook.stream)
 
     try:
-        print('Start dolphin now. Press ^C to stop p3.')
-        pad_path = dolphin_dir + '/Pipes/p3'
-        mw_path = dolphin_dir + '/MemoryWatcher/MemoryWatcher'
-
-        with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
-            run(fox, state, sm, mw, pad, pop, toolbox)
-        fitnesses = toolbox.evaluate(fox.agents)
-        for ind, fit in zip(pop, fitnesses[0]):
-            ind.fitness.values = tuple(fit)
+        # fitnesses = toolbox.evaluate(fox.agents)
+        # for ind, fit in zip(pop, fitnesses[0]):
+        #     ind.fitness.values = tuple(fit)
 
         # Begin the generational process
         while fox.generation < NGEN:
             fox.generation += 1
-            # fox.reset() # resets number of agents and agents list
+            fox.reset()
             
-            # offspring = tools.selTournamentDCD(pop, len(pop))  -- ASK TUTUM
+            # offspring = tools.selTournamentDCD(pop, len(pop))
             offspring = toolbox.select(pop, len(pop))
             offspring = [toolbox.clone(ind) for ind in offspring]
 
@@ -183,20 +193,6 @@ def main():
                 toolbox.mutate(child2)
                 del child1.fitness.values, child2.fitness.values
 
-            # Evaluate the individuals with an invalid fitness
-            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
-            fitnesses = toolbox.evaluate(fox.agents)
-            for ind, fit in zip(invalid_ind, fitnesses[0]):
-                ind.fitness.values = fit
-                # print(fit)
-
-            # Select the next generation population
-            pop = toolbox.select(offspring, len(offspring))
-            record = stats.compile(pop)
-            logbook.record(gen=fox.generation, evals=len(invalid_ind), **record)
-            print(logbook.stream)
-
-            fox.reset()
             for ind in offspring:
                 ann = nnet(c.nnet['n_inputs'], c.nnet['n_h_neurons'], c.nnet['n_outputs'], ind)
                 fox.add_agent(ann)
@@ -204,7 +200,20 @@ def main():
             with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
                 run(fox, state, sm, mw, pad, offspring, toolbox)
 
-            if (fox.generation % 50 == 0):
+            # Evaluate the individuals with an invalid fitness
+            invalid_ind = [ind for ind in offspring if not ind.fitness.valid]
+            fitnesses = toolbox.evaluate(fox.agents)
+            for ind, fit in zip(invalid_ind, fitnesses[0]):
+                ind.fitness.values = tuple(fit)
+
+            # Select the next generation population
+            # pop = toolbox.select(offspring, len(offspring))
+            pop = toolbox.select(pop + offspring, MUTPB)
+            record = stats.compile(pop)
+            logbook.record(gen=fox.generation, evals=len(invalid_ind), **record)
+            print(logbook.stream)
+
+            if (fox.generation % 1 == 0):
                 statistics(pop, logbook, fox.generation)
 
         print("Training complete")
@@ -226,19 +235,29 @@ def evalANN(agents):
     # comma at the end is necessarys since DEAP stores fitness values as a tuple
 
 def statistics(pop, logbook, gen):
-    with open("zdt1_front.json") as optimal_front_data:
-        optimal_front = json.load(optimal_front_data)
+    # with open("benchmark/pareto_front/zdt1_front.json") as optimal_front_data:
+    #     optimal_front = json.load(optimal_front_data)
     # Use 500 of the 1000 points in the json file
-    optimal_front = sorted(optimal_front[i] for i in range(0, len(optimal_front), 2))
+    # optimal_front = sorted(optimal_front[i] for i in range(0, len(optimal_front), 2))
     pop.sort(key=lambda x: x.fitness.values)
-    
+
+    with open("population.txt", "w") as outfile:
+        json.dump(pop, outfile)
     # print(logbook)
-    print("Convergence: ", convergence(pop, optimal_front))
-    print("Diversity: ", diversity(pop, optimal_front[0], optimal_front[-1]))
+    # print("Convergence: ", convergence(pop, optimal_front))
+    # print("Diversity: ", diversity(pop, optimal_front[0], optimal_front[-1]))
     
     front = np.array([ind.fitness.values for ind in pop])
-    optimal_front = np.array(optimal_front)
+    # optimal_front = np.array(optimal_front)
     # plt.scatter(optimal_front[:,0], optimal_front[:,1], c="r")
+    axes = plt.gca()
+    axes.set_xlim(xmin = 0, xmax = 100)
+    axes.set_ylim(ymin = -5, ymax = 40)
     plt.scatter(front[:,1], front[:,0], c="b")
-    plt.axis("tight")
-    plt.savefig("gen_" + str(gen) + ".png")
+    plt.savefig("Training/gen_" + str(gen) + ".png")
+    plt.close()
+
+    plt2.scatter(front[:,1], front[:,0], c="b")
+    plt2.axis("tight")
+    plt2.savefig("Training/backup_" + str(gen) + ".png")
+    plt2.close()
