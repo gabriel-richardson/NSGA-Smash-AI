@@ -65,6 +65,7 @@ def main(seed=1):
     fitnesses = toolbox.map(toolbox.evaluate, [x for x in invalid_ind])
     for ind, fit in zip(invalid_ind, fitnesses):
         ind.fitness.values = fit
+        print(fit)
 
     # This is just to assign the crowding distance to the individuals
     # no actual selection is done
