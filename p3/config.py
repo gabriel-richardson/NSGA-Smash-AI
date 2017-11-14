@@ -8,12 +8,12 @@ game = dict(
     fps                 = 60, # frame per second
     delay               = 20, # terminal update delay
     n_best              = 5, # number of best agents
-    n_agents            = 30, # number of agents
+    n_agents            = 28, # number of agents
 )
 
 nnet = dict(
-    n_inputs    = 4,
-    n_h_neurons = 9,
+    n_inputs    = 15,
+    n_h_neurons = 10,
     n_outputs   = 14,
-    n_weights   = (4+1) * (9) + (9+1) * (14), # (inputs + bias) * (h_neurons) + (h_neurons + bias) * (outputs)
+    n_weights   = (15+1) * (10) + (10+1) * (14), # (inputs + bias) * (h_neurons) + (h_neurons + bias) * (outputs)
 )

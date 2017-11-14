@@ -68,6 +68,7 @@ class MenuManager:
             else:
                 pad.tilt_stick(p3.pad.Stick.MAIN, 0.5 * (dx / mag) + 0.5, 0.5 * (dy / mag) + 0.5)
 
+    # TODO: find a less hacky way to do this
     def change_settings(self, state, pad):
         if self.changed_settings:
             pad.reset()

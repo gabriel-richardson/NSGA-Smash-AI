@@ -79,7 +79,7 @@ def main(seed=1):
     # Begin the generational process
     for gen in range(1, NGEN):
         # Vary the population
-        offspring = toolbox.select(pop, len(pop))
+        offspring = tools.selTournamentDCD(pop, len(pop))
         offspring = [toolbox.clone(ind) for ind in offspring]
         
         for ind1, ind2 in zip(offspring[::2], offspring[1::2]):
@@ -95,6 +95,7 @@ def main(seed=1):
         fitnesses = toolbox.map(toolbox.evaluate, invalid_ind)
         for ind, fit in zip(invalid_ind, fitnesses):
             ind.fitness.values = fit
+            print(len(ind))
             # print("Indiv num:{} fit: {}\n".format(ind, fit))
 
         # Select the next generation population
