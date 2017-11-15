@@ -42,6 +42,8 @@ class Fox:
             # Collect fitness and change agent every x frames
             if state.frame % 600 == 0:
                 a.pause(state, pad)
+                print(a.damage_dealt)
+                print(a.damage_received)
                 a.fit(state, pad) # See Agent class for more on fit()
                 # print(a.number, ": [{0:.2f}".format(a.fitness[1]), ", {0:.2f}] ".format(a.fitness[0]))
                 a.restart(state, pad)

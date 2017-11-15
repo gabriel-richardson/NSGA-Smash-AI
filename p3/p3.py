@@ -144,7 +144,7 @@ def main():
 
     pop = toolbox.population()
 
-    # # to load in trained weights:
+    # to load in trained weights:
     # with open("population.txt", "r") as infile:
     #     pop = json.load(infile)
 

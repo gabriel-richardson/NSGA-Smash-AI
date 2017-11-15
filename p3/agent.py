@@ -42,23 +42,27 @@ class Agent:
     def fit(self, state, pad):
         received = 0
         for i in range(1, len(self.damage_received)):
-            if (self.damage_received[i] == 0):
+            if (self.damage_received[i] == -1 and self.damage_received[i-1] != -1):
                 received += self.damage_received[i-1]
             elif (self.damage_received[i] == -1):
                 received += 10
-            if (i == len(self.damage_received)-1):
+            if (i == len(self.damage_received)-1 and self.damage_received[i] != -1):
                 received += self.damage_received[i]
+            elif (i == len(self.damage_received)-1 and self.damage_received[i] != -1):
+                received += 10
         damage_received = []
         self.fitness[0] = received
         
         dealt = 0
         for i in range(1, len(self.damage_dealt)):
-            if (self.damage_dealt[i] == 0):
+            if (self.damage_dealt[i] == -1 and self.damage_dealt[i-1] != -1):
                 dealt += self.damage_dealt[i-1]
             elif (self.damage_dealt[i] == -1):
-                received += 10
-            if (i == len(self.damage_dealt)-1):
+                dealt += 10
+            if (i == len(self.damage_dealt)-1 and self.damage_dealt[i] != -1):
                 dealt += self.damage_dealt[i]
+            elif (i == len(self.damage_dealt)-1 and self.damage_dealt[i] != -1):
+                dealt += 10
         damage_dealt = []
         self.fitness[1] = dealt
 
