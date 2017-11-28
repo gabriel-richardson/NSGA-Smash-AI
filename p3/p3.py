@@ -131,7 +131,7 @@ def main():
     toolbox.register("mutate", tools.mutPolynomialBounded, low=BOUND_LOW, up=BOUND_UP, eta=20.0, indpb=1.0/NDIM)
     toolbox.register("select", tools.selNSGA2)
 
-    CXPB, MU, NGEN = 0.9, 28, 2000
+    CXPB, MU, NGEN = 0.9, 12, 2000
 
     stats = tools.Statistics(lambda ind: ind.fitness.values)
     stats.register("avg", np.mean, axis=0)

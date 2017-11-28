@@ -40,12 +40,10 @@ class Fox:
             else:
                 a.damage_received.append(state.players[2].percent) # append ai's percent
             # Collect fitness and change agent every x frames
-            if state.frame % 600 == 0:
+            if state.frame % 1200 == 0:
                 a.pause(state, pad)
-                print(a.damage_dealt)
-                print(a.damage_received)
                 a.fit(state, pad) # See Agent class for more on fit()
-                # print(a.number, ": [{0:.2f}".format(a.fitness[1]), ", {0:.2f}] ".format(a.fitness[0]))
+                print(a.number, ": [{0:.2f}".format(a.fitness[1]), ", {0:.2f}] ".format(a.fitness[0]))
                 a.restart(state, pad)
                 self.agent += 1
             # Change agent move

@@ -22,6 +22,15 @@ class ANN(object):
         # activation function could be sigmoid function: 1/(1+exp(-x))
         return 1/(1+np.exp(-x))
 
+    def hardmax(self, inputs):
+        max_value = max(inputs)
+        max_index = inputs.tolist().index(max_value)
+        for i in range(len(inputs)):
+            inputs[i] = 0
+        inputs[max_index] = 1
+
+        return inputs
+
     def evaluate(self, inputs):
         # Compute outputs from the fully connected feed-forward ANN:
         # So basically, you will perform the operations that you did on HW4:
@@ -39,8 +48,8 @@ class ANN(object):
 
         z3 = np.dot(self.output_weights, hidden_nodes)
 
-        outputs = []
-        for i in range(c.nnet['n_outputs']):
-            outputs.append(self.activation(z3[i]))
+        outputs = self.hardmax(z3)
+        # for i in range(c.nnet['n_outputs']):
+        #     outputs.append(self.activation(z3[i]))
         
         return outputs
