@@ -1,5 +1,5 @@
 # Melee Runaway AI
-An SSBM AI that uses neuroevolution to learn how to avoid its opponents.
+A diverse set of defensive and offensive AI agents evolved with NSGA-II
 
 ## Requirements
 Tested on: Ubuntu 14.04 LTS, Dolphin 5.0
@@ -13,7 +13,7 @@ Tested on: Ubuntu 14.04 LTS, Dolphin 5.0
 Pull the repo and run with `python3 -m p3` before opening Dolphin. Stop with ^C.
 
 ## Report
-My final report over this project can be found [here](https://github.com/gabriel-richardson/Melee-Runaway-AI/blob/master/FR.ipynb)
+My final report over this project can be found [here](https://github.com/FRI-GAMEAI/NSGA-Smash-AI/blob/master/final%20report.pdf)
 
 ## Credits
-Big thanks to https://github.com/spxtr/p3 for the memory watcher, as well as to https://github.com/luckycharms14/MeleeAI_Dolphin for help with setting up Dolphin pipe configuration. Inspiration for this project comes from https://github.com/vladfi1/phillip
+Thanks to https://github.com/spxtr/p3 for the memory watcher, as well as to https://github.com/luckycharms14/MeleeAI_Dolphin for help with setting up Dolphin pipe configuration. Inspiration for this project comes from https://github.com/vladfi1/phillip
