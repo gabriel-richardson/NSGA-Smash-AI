@@ -6,7 +6,7 @@ class MenuManager:
     def __init__(self):
         self.dragged_to_9      = False
         self.level_9           = False
-        self.selected_falco   = False
+        self.selected_falco    = False
         self.selected_fox      = False
         self.selected_settings = False
         self.changed_settings  = False
@@ -14,15 +14,15 @@ class MenuManager:
         self.action_list       = []
         self.last_action       = 0
 
-    def pick_fox(self, state, pad):
+    def pick_falcon(self, state, pad):
         if self.selected_fox:
             pad.release_button(p3.pad.Button.A)
             pad.tilt_stick(p3.pad.Stick.MAIN, 0.5, 0.5)
             self.pick_cpu(state, pad)
         else:
             # Go to fox and press A
-            target_x = -23.5
-            target_y = 11.5
+            target_x = 19
+            target_y = 19
             dx = target_x - state.players[2].cursor_x
             dy = target_y - state.players[2].cursor_y
             mag = math.sqrt(dx * dx + dy * dy)

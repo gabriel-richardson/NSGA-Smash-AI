@@ -100,7 +100,6 @@ class StateManager:
             self.addresses[data_pointer + ' 19EC'] = int_handler(player, 'body_state', 0, 0xFF, BodyState, BodyState.Normal)
             self.addresses[data_pointer + ' 19F8'] = int_handler(player, 'shield_size')
             self.addresses[data_pointer + ' 19F8'] = int_handler(player, 'shield_size')
-            # self.addresses['804531BC'] = int_handler(player, 'self_deaths')
 
 
 

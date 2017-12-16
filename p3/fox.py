@@ -39,6 +39,8 @@ class Fox:
                 a.damage_received.append(-1)
             else:
                 a.damage_received.append(state.players[2].percent) # append ai's percent
+            if (state.players[1].facing == state.players[2].facing):
+                a.fitness[0] += .1
             # Collect fitness and change agent every x frames
             if state.frame % 1200 == 0:
                 a.pause(state, pad)
@@ -48,6 +50,9 @@ class Fox:
                 self.agent += 1
             # Change agent move
             elif state.frame % 2 == 0:
+                if (state.players[2].pos_x == a.last_pos):
+                    a.fitness[0] += .2
+                a.last_pos = state.players[2].pos_x
                 a.advance(state, pad) # See Agent class for more on advance()
         return self.agent
 

@@ -14,6 +14,8 @@ class Agent:
         self.action_list     = []
         self.last_restart    = 0
         self.last_action     = 0
+        self.last_move       = 0
+        self.last_pos        = 60
         self.fitness         = [0, 0] # Damage received, damage dealt
         self.damage_received = []
         self.damage_dealt    = []
@@ -56,7 +58,7 @@ class Agent:
             if (self.damage_dealt[i] == -1 and self.damage_dealt[i-1] != -1):
                 dealt += self.damage_dealt[i-1]
             # elif (self.damage_dealt[i] == -1):
-            #     dealt += 10
+            #     dealt += 1
             if (i == len(self.damage_dealt)-1 and self.damage_dealt[i] != -1):
                 dealt += self.damage_dealt[i]
         damage_dealt = []
@@ -87,151 +89,164 @@ class Agent:
         inputs = [] # nnet inputs
         inputs.append(self.normalize(state.players[1].pos_x, -246, 246)) # x
         inputs.append(self.normalize(state.players[1].pos_y, -140, 140)) # y
-        # inputs.append(self.normalize(state.players[1].percent, 0, 999)) # percent
-        # inputs.append(self.normalize(state.players[1].facing, -1, 1)) # facing
+        inputs.append(self.normalize(state.players[1].facing, -1, 1)) # facing
         # inputs.append(self.normalize(state.players[1].action_frame, 0, 260)) # action frame
         # inputs.append(self.normalize(state.players[1].hitstun, 0, 50)) # hitstun
         # inputs.append(self.normalize(state.players[1].on_ground, int(False), int(True))) # in air
-        inputs.append(self.normalize(state.players[1].self_air_vel_x, -2.3, 2.3)) # speed x
-        inputs.append(self.normalize(state.players[1].self_air_vel_y, -2.9, 3.22)) # speed y
+        # inputs.append(self.normalize(state.players[1].self_air_vel_x, -2.3, 2.3)) # speed x
+        # inputs.append(self.normalize(state.players[1].self_air_vel_y, -2.9, 3.22)) # speed y
 
         inputs.append(self.normalize(state.players[2].pos_x, -246, 246)) # x
         inputs.append(self.normalize(state.players[2].pos_y, -140, 140)) # y
-        # inputs.append(self.normalize(state.players[2].percent, 0, 999)) # percent
         inputs.append(self.normalize(state.players[2].facing, -1, 1)) # facing
         # inputs.append(self.normalize(state.players[2].action_frame, 0, 260)) # action frame
         # inputs.append(self.normalize(state.players[2].hitstun, 0, 50)) # hitstun
-        # inputs.append(self.normalize(state.players[2].shield_size, 1045891646, 1114636288)) # shield size
-        inputs.append(self.normalize(state.players[2].on_ground, int(False), int(True))) # in air
-        inputs.append(self.normalize(state.players[2].self_air_vel_x, -2.17, 2.17)) # speed x
-        inputs.append(self.normalize(state.players[2].self_air_vel_y, -2.17, 3.22)) # speed y
-
+        # inputs.append(self.normalize(state.players[2].on_ground, int(False), int(True))) # in air
+        # inputs.append(self.normalize(state.players[2].self_air_vel_x, -2.17, 2.17)) # speed x
+        # inputs.append(self.normalize(state.players[2].self_air_vel_y, -2.17, 3.22)) # speed y
 
         outputs = self.brain.evaluate(inputs)
-        if (state.players[2].action_frame > 0 and state.players[2].action_frame < 4):
-            if outputs[0] >= .5: # Left
+        if outputs[0] >= .5:
+            if (state.players[2].body_state == BodyState.Normal and state.players[2].pos_x > 87):
                 self.fitness[1] += .1
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
-            if outputs[1] >= .5: # Right
+            self.current_move = 0
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
+        if outputs[1] >= .5:
+            if (state.players[2].body_state == BodyState.Normal and state.players[2].pos_x < -87):
                 self.fitness[1] += .1
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
-            if outputs[2] >= .5: # Down
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.0]))
-            if outputs[3] >= .5: # Up
+            self.current_move = 1
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
+        if outputs[2] >= .5:
+            self.current_move = 2
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.0]))
+        if outputs[3] >= .5:
+            self.current_move = 3
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 1.0]))
+        if outputs[4] >= .5:
+            self.current_move = 8
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
+        if outputs[5] >= .5:
+            self.current_move = 9
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[6] >= .5:
+            self.current_move = 10
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[7] >= .5:
+            self.current_move = 11
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[8] >= .5:
+            self.current_move = 12
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.0]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[9] >= .5:
+            self.current_move = 13
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 1.0]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[10] >= .5:
+            self.current_move = 14
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 1.0]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[11] >= .5:
+            self.current_move = 15
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 1.0]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[12] >= .5:
+            self.current_move = 16
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.0]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[13] >= .5:
+            self.current_move = 17
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.0]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+        if outputs[14] >= .5:
+            self.current_move = 18
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
+        if outputs[15] >= .5:
+            self.current_move = 19
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
+        if outputs[16] >= .5:
+            self.current_move = 20
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
+        if outputs[17] >= .5:
+            self.current_move = 21
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.0]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
+        if outputs[18] >= .5:
+            self.current_move = 22
+            if (state.players[2].body_state == BodyState.Normal and (state.players[2].pos_x > 87 or state.players[2].pos_x < -87)):
                 self.fitness[1] += .1
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 1.0]))
-            if outputs[4] >= .5: # Top-Left
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 1.0]))
-            if outputs[5] >= .5: # Top-Right
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 1.0]))
-            if outputs[6] >= .5: # Bottom-Left
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.0]))
-            if outputs[7] >= .5: # Bottom-Right
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.0]))
-            if outputs[8] >= .5: # Neutral
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
-            if outputs[9] >= .5: # A Button
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[10] >= .5: # Left + A
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[11] >= .5: # Right + A
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[12] >= .5: # Down + A
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.0]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[13] >= .5: # Up + A
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 1.0]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[14] >= .5: # Top-left + A
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 1.0]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[15] >= .5: # Top-right + A
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 1.0]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[16] >= .5: # Bottom-left + A
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.0]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[17] >= .5: # Bottom-right + A
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.0]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-            if outputs[18] >= .5: # B Button
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
-            if outputs[19] >= .5: # Left + B
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
-            if outputs[20] >= .5: # Right + B
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
-            if outputs[21] >= .5: # Down + B
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.0]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
-            if outputs[22] >= .5: # Up + B
-                if (state.players[2].body_state == BodyState.Normal and (state.players[2].pos_x > 171 or state.players[2].pos_x < -171)):
-                    self.fitness[1] += 2
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 1.0]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
-            if outputs[23] >= .5: # Left + Y
-                if (state.players[2].pos_x > 171):
-                    self.fitness[1] += 1
+            else:
+                self.fitness[0] += 1.5
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 1.0]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.B]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.B]))
+        if outputs[19] >= .5:
+            self.current_move = 23
+            if (state.players[2].pos_x > 87):
                 self.fitness[1] += .1
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.Y]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.Y]))
-            if outputs[24] >= .5: # Right + Y
-                if (state.players[2].pos_x < -171):
-                    self.fitness[1] += 1
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.Y]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.Y]))
+        if outputs[20] >= .5:
+            self.current_move = 24
+            if (state.players[2].pos_x < -87):
                 self.fitness[1] += .1
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.Y]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.Y]))
-            if outputs[25] >= .5: # Y Button
-                self.fitness[1] += .1
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.Y]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.Y]))
-            if outputs[26] >= .5: # Z Button
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.Z]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.Z]))
-            if outputs[27] >= .5: # L Trigger
-                self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
-                self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
-            if outputs[28] >= .5: # L + A
-                self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
-                self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
-                self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
-            if outputs[29] >= .5: # L + Left
-                self.fitness[1] += .1
-                self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
-                self.action_list.append((1, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
-                self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
-            if outputs[30] >= .5: # L + Right
-                self.fitness[1] += .1
-                self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
-                self.action_list.append((1, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
-                self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
-            if outputs[31] >= .5: # L + Down
-                self.fitness[1] += .1
-                self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
-                self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
-                self.action_list.append((1, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.0]))
-                self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
-
-
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.Y]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.Y]))
+        if outputs[21] >= .5:
+            self.current_move = 25
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.Y]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.Y]))
+        if outputs[22] >= .5:
+            self.current_move = 26
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.Z]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.Z]))
+        if outputs[23] >= .5:
+            self.current_move = 27
+            self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
+            self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
+        if outputs[24] >= .5:
+            self.current_move = 28
+            self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
+            self.action_list.append((0, pad.press_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.release_button, [p3.pad.Button.A]))
+            self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
+        if outputs[25] >= .5:
+            self.current_move = 29
+            self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
+            self.action_list.append((1, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.0, 0.5]))
+            self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
+        if outputs[26] >= .5:
+            self.current_move = 30
+            self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
+            self.action_list.append((1, pad.tilt_stick, [p3.pad.Stick.MAIN, 1.0, 0.5]))
+            self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
+        if outputs[27] >= .5:
+            self.current_move = 31
+            self.action_list.append((0, pad.press_trigger, [p3.pad.Trigger.L, 1]))
+            self.action_list.append((0, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.5]))
+            self.action_list.append((1, pad.tilt_stick, [p3.pad.Stick.MAIN, 0.5, 0.0]))
+            self.action_list.append((1, pad.press_trigger, [p3.pad.Trigger.L, 0]))
+        if (self.current_move != self.last_move):
+            self.fitness[1] += .5
+        self.last_move = self.current_move

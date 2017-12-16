@@ -64,6 +64,7 @@ def write_locations(dolphin_dir, locations):
             return
 
 def run(fox, state, sm, mw, pad, pop, toolbox):
+    pad.reset()
     mm = p3.menu_manager.MenuManager()
     while True:
         last_frame = state.frame
@@ -82,8 +83,7 @@ def make_action(state, pad, mm, fox):
             pad.reset()
             return False
     elif state.menu == p3.state.Menu.Characters:
-        # print(state.players[0].cursor_x, state.players[0].cursor_y)
-        mm.pick_fox(state, pad)
+        mm.pick_falcon(state, pad)
         print(state.players[1].character)
     elif state.menu == p3.state.Menu.Stages:
         mm.press_start_lots(state, pad)
@@ -142,11 +142,11 @@ def main():
     logbook = tools.Logbook()
     logbook.header = "gen", "evals", "std", "min", "avg", "max"
 
-    pop = toolbox.population()
+    # pop = toolbox.population()
 
     # to load in trained weights:
-    # with open("population.txt", "r") as infile:
-    #     pop = json.load(infile)
+    with open("population.txt", "r") as infile:
+        pop = json.load(infile)
 
     # Add agents to the population
     for ind in pop:
@@ -155,11 +155,15 @@ def main():
 
     print('Start dolphin now. Press ^C to stop p3.')
     with p3.pad.Pad(pad_path) as pad, p3.memory_watcher.MemoryWatcher(mw_path) as mw:
+        fox.agent = 11
+        run(fox, state, sm, mw, pad, pop, toolbox) # run agent once to get past "ready, GO!" lag
+        fox.agent = 0
         run(fox, state, sm, mw, pad, pop, toolbox)
 
     # Evaluate the individuals with an invalid fitness
     invalid_ind = [ind for ind in pop if not ind.fitness.valid]
     fitnesses = toolbox.evaluate(fox.agents)
+
     for ind, fit in zip(invalid_ind, fitnesses[0]):
         ind.fitness.values = tuple(fit)
 
@@ -236,8 +240,8 @@ def statistics(pop, logbook, gen):
         json.dump(pop, outfile)
     
     axes = plt.gca()
-    axes.set_xlim(xmin = -1, xmax = 200)
-    axes.set_ylim(ymin = -1, ymax = 300)
+    axes.set_xlim(xmin = -5, xmax = 200)
+    axes.set_ylim(ymin = -5, ymax = 300)
     
     front = np.array([ind.fitness.values for ind in pop])
     plt.scatter(front[:,1], front[:,0], c="b")
