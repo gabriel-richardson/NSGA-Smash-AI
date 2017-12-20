@@ -1,13 +1,13 @@
-# Melee Runaway AI
-A diverse set of defensive and offensive AI agents evolved with NSGA-II
+# Melee Fighting AI
+We used NSGA-II in DEAP to optimize a set of Smash Bros. AI agents for multiple objectives: offense and defense. By optimizing for two objectives with NSGA-II we can achieve a diverse set of agents on the offensive/defensive spectrum.
 
 ## Requirements
-Tested on: Ubuntu 14.04 LTS, Dolphin 5.0
+Tested on: Ubuntu 14.04 LTS & macOS Sierra, Dolphin 5.0
 
 1. [Current stable version of Dolphin](https://wiki.dolphin-emu.org/index.php?title=Building_Dolphin_on_Linux#14.04_LTS)
 2. Super Smash Bros. Melee (NTSC 1.02) iso
 3. Python 3
-4. Python packages: [deap](https://github.com/DEAP/deap#installation), numpy
+4. Python packages: [DEAP](https://github.com/DEAP/deap#installation), numpy
 
 ## Run
 Pull the repo and run with `python3 -m p3` before opening Dolphin. Stop with ^C.
