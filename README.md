@@ -1,6 +1,10 @@
 # Melee Fighting AI
 We used NSGA-II in DEAP to optimize a set of Smash Bros AI agents for both offensive and defensive objctives. By optimizing for two objectives with NSGA-II, we are able to evolve a diverse set of agents that implement varying degrees of offensive and defensive strategies.
 
+![](defense.gif)
+![](hybrid.gif)
+![](offense.gif)
+
 ## Requirements
 Tested on: Ubuntu 14.04 LTS & macOS Sierra, Dolphin 5.0
 
