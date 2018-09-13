@@ -18,9 +18,21 @@ Smash Bros. Melee (SSBM).
 Our agents were trained with two different objectives in mind——offense and defense. We measure these two objectives in terms of damage. The more damage an agent deals, the more offensive it is. Likewise, agents that receive less damage are more defensive. By making use of DEAP's non-dominated sorting genetic algorithm (NSGA-II), we can optimize both of these objectives to evolve a diverse set of agents that implement varying degrees of offensive and defensive strategies. A few of these strategies can be seen below:
 
 Our agent is Captain Falcon and his opponent is a level 9 Falco cpu.
-![](defense.gif) Our most defensive agents do not exhibit complex defensive strategies like running away and shielding. Instead, the strategy consists of rolling behind the opponent and approaching with a safe attacking option. This results in a fighting style that both deals and receives a low amount of damage.
-![](hybrid.gif) As the agents get more offensive, they choose options that deal more damage but put them at risk for receiving more damage. This strategy combines the safe attacking options seen in our defensive agents, along with the riskier close ranged jabs of our most offensive agents.
-![](offense.gif) Our most offensive agents opt for grabs and close ranged jabs. While this strategy is most likely to deal lots of damage, the agent is also prone to receiving high amounts of damage as well.
+
+## Defense
+![](defense.gif)
+
+Our most defensive agents do not exhibit complex defensive strategies like running away and shielding. Instead, the strategy consists of rolling behind the opponent and approaching with a safe attacking option. This results in a fighting style that both deals and receives a low amount of damage.
+
+## Hybrid
+![](hybrid.gif)
+
+As the agents get more offensive, they choose options that deal more damage but put them at risk for receiving more damage. This strategy combines the safe attacking options seen in our defensive agents, along with the riskier close ranged jabs of our most offensive agents.
+
+## Offense
+![](offense.gif)
+
+Our most offensive agents opt for grabs and close ranged jabs. While this strategy is most likely to deal lots of damage, the agent is also prone to receiving high amounts of damage as well.
 
 ## Requirements
 Tested on: Ubuntu 14.04 LTS & macOS Sierra
