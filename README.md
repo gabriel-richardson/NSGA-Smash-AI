@@ -22,7 +22,7 @@ Our agent is Captain Falcon and his opponent is a level 9 Falco cpu.
 ## Defense
 ![](defense.gif)
 
-Our most defensive agents do not exhibit complex defensive strategies like running away and shielding. Instead, the strategy consists of rolling behind the opponent and approaching with a safe attacking option. This results in a fighting style that both deals and receives a low amount of damage.
+Our most defensive agents do not exhibit complex defensive strategies like running away and shielding. Instead, the strategy consists of rolling behind the opponent and approaching with a safe attacking option. This results in a fighting style that both deals and receives low amounts of damage.
 
 ## Hybrid
 ![](hybrid.gif)
